@@ -10,12 +10,12 @@ on:
         default: 1
 
 jobs:
-  generate_iteration_matrix:
+  generate-iteration-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set_matrix.outputs.matrix }}
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
-      - id: set_matrix
+      - id: generate-matrix
         run: |
           matrix="["
           for (( i=1; i<=${{ github.event.inputs.run_count }}; i++ )); do
@@ -26,12 +26,13 @@ jobs:
           echo "matrix is: " $matrix
 
   single_job:
-    needs: generate_iteration_matrix
+    needs: generate-iteration-matrix
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       max-parallel: 1
       matrix:
-        run_iteration: ${{ fromJSON(needs.generate_iteration_matrix.outputs.matrix) }}
+        run_iteration: ${{ fromJSON(needs.generate-iteration-matrix.outputs.matrix) }}
     steps:
       - name: echo
         run: |
