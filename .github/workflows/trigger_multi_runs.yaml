@@ -1,0 +1,22 @@
+name: Trigger multi runs
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_count:
+        description: "Number of times to run the test"
+        required: true
+        type: number
+        default: 1
+
+jobs:
+  single_job:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        run_iteration: ${{ fromJSON(format("[ {0} ]", join(each(range(0, github.event.inputs.run_count), (i) => i + 1), ","))) }}
+
+    steps:
+      - name: echo
+        run: |
+          echo "Hello world"
