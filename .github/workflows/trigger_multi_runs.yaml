@@ -29,6 +29,7 @@ jobs:
     needs: generate_iteration_matrix
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         run_iteration: ${{ fromJSON(needs.generate_iteration_matrix.outputs.matrix) }}
     steps:
