@@ -10,13 +10,28 @@ on:
         default: 1
 
 jobs:
+  generate_iteration_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
+    steps:
+      - id: set_matrix
+        run: |
+          matrix="["
+          for (( i=1; i<=${{ github.event.inputs.run_count }}; i++ )); do
+            matrix="$matrix $i,"
+          done
+          matrix="$matrix]"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "matrix is: " $matrix
+
   single_job:
+    needs: generate_iteration_matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        run_iteration: ${{ fromJSON(format('[ {0} ]', join(each(range(0, github.event.inputs.run_count), (i) => i + 1), ', '))) }}
-
+        run_iteration: ${{ fromJSON(needs.generate_iteration_matrix.outputs.matrix) }}
     steps:
       - name: echo
         run: |
-          echo "Hello world"
+          echo "Running iteration ${{ matrix.run_iteration }}"
